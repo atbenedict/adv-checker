@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from "react";
 import Dashboard from "./Dashboard.js";
 import axios from "axios";
+import ls from "local-storage";
 import "./App.css";
 
-const url = process.env.REACT_APP_SERVER_URL;
-const apikey = process.env.REACT_APP_MY_KEY;
-
-axios.interceptors.request.use(
-  options => {
-    options.headers.authorization = `Token ${apikey}`;
-    return options;
-  },
-  error => {
-    return Promise.reject(error);
-  }
-);
-
 const App = () => {
+  const [apiState, setAPIstate] = useState(null);
   const [advData, setAdvData] = useState(null);
   const [reload, setReload] = useState(true);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
 
+  const url = "http://lambda-treasure-hunt.herokuapp.com/api/adv/player_state";
+
+  const handleChange = e => {
+    e.preventDefault();
+    setAPIstate(e.target.value);
+    console.log(apiState);
+  };
+  const handleAPIsave = e => {
+    e.preventDefault();
+    console.log(apiState);
+    ls.set("apikey", apiState);
+  };
   const sortList = key => {
     let tempData = advData;
     if (sortDir === "asc") {
@@ -57,35 +58,60 @@ const App = () => {
     }
   };
   useEffect(() => {
-    const loadStatus = async () => {
-      const gameDump = await axios.get(url);
-      const parsedArray = [];
-      const playerList = Object.entries(gameDump.data.players);
+    let api = ls.get("apikey") || null;
+    if (api == null) {
+      api = prompt("Please enter a valid API key");
+      setAPIstate(api);
+    } else {
+      setAPIstate(api);
+      console.log("from initial load of api:", apiState);
+    }
+  }, []);
 
-      for (const [first, others] of playerList) {
-        parsedArray.push({
-          ID: first,
-          real_name: others.real_name,
-          name: others.name,
-          has_rename: others.has_rename,
-          has_mined: others.has_mined,
-          gold: others.gold,
-          lambda_coins: others.lambda_coins,
-          room_id: others.room_id,
-          can_fly: others.can_fly,
-          can_dash: others.can_dash,
-          can_carry: others.can_carry
-        });
-      }
+  useEffect(() => {
+    if (apiState != null) {
+      let apikey = apiState;
+      axios.interceptors.request.use(
+        options => {
+          options.headers.authorization = `Token ${apikey}`;
+          return options;
+        },
+        error => {
+          return Promise.reject(error);
+        }
+      );
+      const loadStatus = async () => {
+        const gameDump = await axios.get(url);
+        const parsedArray = [];
+        const playerList = Object.entries(gameDump.data.players);
 
-      setAdvData(parsedArray);
-      setReload(false);
-      if (advData) {
-        handleSorting(`gold`);
-      }
-    };
-    loadStatus();
-  }, [reload]);
+        for (const [first, others] of playerList) {
+          parsedArray.push({
+            ID: first,
+            real_name: others.real_name,
+            name: others.name,
+            has_rename: others.has_rename,
+            has_mined: others.has_mined,
+            gold: others.gold,
+            lambda_coins: others.lambda_coins,
+            room_id: others.room_id,
+            can_fly: others.can_fly,
+            can_dash: others.can_dash,
+            can_carry: others.can_carry,
+            snitches: others.snitches
+          });
+        }
+
+        setAdvData(parsedArray);
+        setReload(false);
+        if (advData) {
+          handleSorting(`gold`);
+        }
+      };
+
+      loadStatus();
+    }
+  }, [reload, apiState]);
 
   const handleListUpdate = () => {
     setReload(true);
@@ -95,7 +121,13 @@ const App = () => {
       {!advData ? (
         <div className="loading">Loading data...</div>
       ) : (
-        <Dashboard advData={advData} handleListUpdate={handleListUpdate} />
+        <Dashboard
+          advData={advData}
+          handleListUpdate={handleListUpdate}
+          handleChange={handleChange}
+          handleAPIsave={handleAPIsave}
+          apiState={apiState}
+        />
       )}
     </div>
   );

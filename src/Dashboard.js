@@ -18,6 +18,7 @@ import Link from "@material-ui/core/Link";
 import UpdateIcon from "@material-ui/icons/Update";
 
 import AdvList from "./AdvList";
+import CredentialsForm from "./CredentialsForm.js";
 
 function Copyright() {
   return (
@@ -113,7 +114,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Dashboard({ advData, handleListUpdate }) {
+export default function Dashboard({
+  advData,
+  handleListUpdate,
+  handleChange,
+  handleAPIsave,
+  apiState
+}) {
   const classes = useStyles();
 
   return (
@@ -121,9 +128,6 @@ export default function Dashboard({ advData, handleListUpdate }) {
       <CssBaseline />
       <AppBar position="absolute" className={clsx(classes.appBar)}>
         <Toolbar className={classes.toolbar}>
-          <IconButton color="inherit" onClick={handleListUpdate}>
-            <UpdateIcon />
-          </IconButton>
           <Typography
             component="h1"
             variant="h6"
@@ -131,20 +135,34 @@ export default function Dashboard({ advData, handleListUpdate }) {
             noWrap
             className={classes.title}
           >
-            Check the Adventurers Dashboard
+            Adventurers' Dashboard
           </Typography>
         </Toolbar>
       </AppBar>
+
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
+          <CredentialsForm
+            handleChange={handleChange}
+            handleAPIsave={handleAPIsave}
+            apiState={apiState}
+          />
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                {advData ? <AdvList advData={advData} /> : <p>Loading...</p>}
+                {advData ? (
+                  <AdvList
+                    advData={advData}
+                    handleListUpdate={handleListUpdate}
+                  />
+                ) : (
+                  <p>Loading...</p>
+                )}
               </Paper>
             </Grid>
           </Grid>
+
           <Box pt={4}>
             <Copyright />
           </Box>

@@ -6,6 +6,8 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Title from "./Title";
+import IconButton from "@material-ui/core/IconButton";
+import UpdateIcon from "@material-ui/icons/Update";
 
 const useStyles = makeStyles(theme => ({
   seeMore: {
@@ -13,11 +15,16 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function AdvList({ advData }) {
+export default function AdvList({ advData, handleListUpdate }) {
   const classes = useStyles();
   return (
     <React.Fragment>
-      <Title>Adventurers</Title>
+      <Title>
+        <IconButton color="inherit" onClick={handleListUpdate}>
+          <UpdateIcon />
+        </IconButton>
+        Adventurers
+      </Title>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
@@ -27,6 +34,7 @@ export default function AdvList({ advData }) {
             <TableCell>Mined?</TableCell>
             <TableCell>Gold</TableCell>
             <TableCell>Coins</TableCell>
+            <TableCell>Snitches</TableCell>
             <TableCell>Room No.</TableCell>
             <TableCell>Fly?</TableCell>
             <TableCell>Dash?</TableCell>
@@ -42,6 +50,7 @@ export default function AdvList({ advData }) {
               <TableCell>{row.has_mined ? "Y" : null}</TableCell>
               <TableCell>{row.gold}</TableCell>
               <TableCell>{row.lambda_coins}</TableCell>
+              <TableCell>{row.snitches}</TableCell>
               <TableCell>{row.room_id}</TableCell>
               <TableCell>{row.can_fly ? "Y" : null}</TableCell>
               <TableCell>{row.can_dash ? "Y" : null}</TableCell>
