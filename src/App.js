@@ -11,7 +11,7 @@ const App = () => {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
 
-  const url = "http://lambda-treasure-hunt.herokuapp.com/api/adv/player_state";
+  const url = "https://lambda-treasure-hunt.herokuapp.com/api/adv/player_state";
 
   const handleChange = e => {
     e.preventDefault();
